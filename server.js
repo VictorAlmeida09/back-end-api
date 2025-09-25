@@ -2,23 +2,24 @@
 import express from "express"; // Requisição do pacote do express
 import pkg from "pg"; // Requisição do pacote do pg (PostgreSQL)
 import dotenv from "dotenv"; // Importa o pacote dotenv para carregar variáveis de ambiente
-
+let pool = null; // Variável para armazenar o pool de conexões com o banco de dados
 const app = express(); // Inicializa o servidor Express
 const port = 3000; // Define a porta onde o servidor irá escutar
 dotenv.config(); // Carrega as variáveis de ambiente do arquivo .env
 const { Pool } = pkg; // Obtém o construtor Pool do pacote pg para gerenciar conexões com o banco de dados PostgreSQL
 
+function conectarBD() {
+  if (!pool) {
+    pool = new Pool({
+      connectionString: process.env.URL_BD,
+    });
+  }
+  return pool;
+}
 app.get("/questoes", async (req, res) => {
-	console.log("Rota GET /questoes solicitada"); // Log no terminal para indicar que a rota foi acessada
-	//server.js
-const { Pool } = pkg; // Obtém o construtor Pool do pacote pg para gerenciar conexões com o banco de dados PostgreSQL
-
-const db = new Pool({
-  // Cria uma nova instância do Pool para gerenciar conexões com o banco de dados
-  connectionString: process.env.URL_BD, // Usa a variável de ambiente do arquivo .env DATABASE_URL para a string de conexão
-});
-//server.js
-try {
+  console.log("Rota GET /questoes solicitada"); // Log no terminal para indicar que a rota foi acessada
+  const db = conectarBD();
+  try {
     const resultado = await db.query("SELECT * FROM questoes"); // Executa uma consulta SQL para selecionar todas as questões
     const dados = resultado.rows; // Obtém as linhas retornadas pela consulta
     res.json(dados); // Retorna o resultado da consulta como JSON
@@ -31,23 +32,14 @@ try {
   }
 });
 app.get("/", async (req, res) => {
-  
-
   console.log("Rota GET / solicitada"); // Log no terminal para indicar que a rota foi acessada
-
-  const db = new Pool({
-    // Cria uma nova instância do Pool para gerenciar conexões com o banco de dados
-    connectionString: process.env.URL_BD, // Usa a variável de ambiente do arquivo .env DATABASE_URL para a string de conexão
-  });
-
+  const db = conectarBD();
   let dbStatus = "ok";
-
   try {
     await db.query("SELECT 1");
   } catch (e) {
     dbStatus = e.message;
   }
-
   // Responde com um JSON contendo uma mensagem, o nome do autor e o status da conexão com o banco de dados
   res.json({
     message: "API para ficar milionario", // Substitua pelo conteúdo da sua API
