@@ -236,8 +236,7 @@ app.post("/usuarios", async (req, res) => {
     const resultado = await db.query(consulta, valores);
 
     res.status(201).json({
-      mensagem: "Usuário criado com sucesso!",
-      usuario: resultado.rows[0]
+      mensagem: "Usuário criado com sucesso!"
     });
   } catch (e) {
     console.error("Erro ao criar usuário:", e);
@@ -274,8 +273,7 @@ app.put("/usuarios/:id", async (req, res) => {
     const resultado = await db.query(consulta, [novoNome, novoLogin, novaSenha, id]);
 
     res.json({
-      mensagem: "Usuário atualizado com sucesso!",
-      usuario: resultado.rows[0]
+      mensagem: "Usuário atualizado com sucesso!"
     });
   } catch (e) {
     console.error("Erro ao atualizar usuário:", e);
